@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sister Profiles — Muslim Marriage Initiative</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #222; padding: 1.5rem; }
+  .header { text-align: center; margin-bottom: 2rem; }
+  .header h1 { font-size: 22px; font-weight: 700; color: #2c2c4e; }
+  .header p { font-size: 13px; color: #777; margin-top: 4px; }
+  .filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .filters input, .filters select { flex: 1; min-width: 150px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; background: #fff; }
+  .count { font-size: 13px; color: #888; margin-bottom: 1rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .card { background: #fff; border-radius: 14px; padding: 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); display: flex; flex-direction: column; gap: 10px; }
+  .card-header { display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .profile-label { font-size: 14px; font-weight: 700; color: #2c2c4e; }
+  .profile-id { font-size: 10px; color: #aaa; font-family: monospace; margin-top: 2px; }
+  .divider { border: none; border-top: 1px solid #f0f0f0; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .info-item { display: flex; flex-direction: column; gap: 1px; }
+  .info-label { font-size: 10px; color: #999; }
+  .info-value { font-size: 12px; color: #333; font-weight: 600; }
+  .card-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+  .badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 700; }
+  .badge-teal { background: #e1f5ee; color: #085041; }
+  .badge-amber { background: #faeeda; color: #633806; }
+  .badge-purple { background: #eeedfe; color: #3c3489; }
+  .tag { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: #f4f4f4; color: #666; }
+  .flex-row { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #888; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #1D9E75; flex-shrink: 0; }
+  .no-result { text-align: center; padding: 2rem; color: #aaa; font-size: 14px; display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>✦ Profils — Sœurs en Recherche de Mariage</h1>
+  <p>Muslim Marriage Initiative · 29 profils anonymes</p>
+</div>
+
+<div class="filters">
+  <input type="text" id="searchInput" placeholder="🔍 Ville, langue, origine..." oninput="filter()"/>
+  <select id="langFilter" onchange="filter()">
+    <option value="">Toutes les langues</option>
+    <option value="english">English</option>
+    <option value="french">French / Français</option>
+    <option value="arabic">Arabic / Arabe</option>
+    <option value="urdu">Urdu</option>
+  </select>
+  <select id="timeFilter" onchange="filter()">
+    <option value="">Tous les délais</option>
+    <option value="t1">1–2 mois</option>
+    <option value="t2">3–6 mois</option>
+    <option value="t3">6–12 mois</option>
+    <option value="t4">12–24 mois</option>
+  </select>
+</div>
+
+<div class="count" id="countLabel">Affichage de 29 profils</div>
+<div class="grid" id="grid"></div>
+<div class="no-result" id="noResult">Aucun profil ne correspond à vos filtres.</div>
+
+<script>
+const avColors = [
+  {bg:'#eeedfe',icon:'👤'},
+  {bg:'#e1f5ee',icon:'👤'},
+  {bg:'#faece7',icon:'👤'},
+  {bg:'#fbeaf0',icon:'👤'},
+  {bg:'#e6f1fb',icon:'👤'},
+  {bg:'#faeeda',icon:'👤'},
+  {bg:'#eaf3de',icon:'👤'}
+];
+
+const profiles = [
+  { id:'MMID10002026100569', age:21, height:'168 cm', city:'Longueuil, QC, Canada', nationality:'Sénégalaise · Canadienne · Américaine', background:'Black / African Descent', motherTongue:'Wolof', languages:['English','French','Wolof'], status:'Never Married', tKey:'t4', tLabel:'12–24 mois', relocate:'Selon / Depends', children:'No', flexible:'Yes, but prefers her timeline', lang:'en' },
+  { id:'MMID10002026100513', age:22, height:'155 cm', city:'Canada', nationality:'Indian', background:'South Asian', motherTongue:'Urdu', languages:['English'], status:'Never Married', tKey:'t1', tLabel:'1–2 mois', relocate:'Yes / Oui', children:'No', flexible:'Yes', lang:'en' },
+  { id:'MMID10002026100560', age:22, height:'163 cm', city:'Terrebonne, Canada', nationality:'Congolaise', background:'Black / African Descent', motherTongue:'Français', languages:['English','French'], status:'Célibataire', tKey:'t2', tLabel:'3–6 mois', relocate:'Oui / Yes', children:'Non', flexible:'Oui', lang:'fr' },
+  { id:'MMID10002026100573', age:22, height:'162 cm', city:'Montréal, Canada', nationality:'Canadian', background:'Other', motherTongue:'English', languages:['English','French','Russian'], status:'Never Married', tKey:'t3', tLabel:'6–12 mois', relocate:'Selon / Depends', children:'No', flexible:'Yes, but prefers her timeline', lang:'en' },
+  { id:'MMID10002026100504', age:23, height:'170 cm', city:'Salaberry-De-Valleyfield, QC', nationality:'Canadienne', background:'White / European Descent', motherTongue:'Français', languages:['English','French'], status:'Célibataire', tKey:'t2', tLabel:'3–6 mois', relocate:'Selon / Depends', children:'Non', flexible:'Oui', lang:'fr' },
+  { id:'MMID10002026100572', age:23, height:'161 cm', city:'Montréal, Canada', nationality:'Colombian', background:'Latin / South American', motherTongue:'Spanish', languages:['English','French','Spanish'], status:'Never Married', tKey:'t3', tLabel:'6–12 mois', relocate:'Yes / Oui', children:'No', flexible:'Yes', lang:'en' },
+  { id:'MMID10002026100519', age:24, height:'168 cm', city:'Montréal, Canada', nationality:'Togolaise', background:'Nord-Africain(e)', motherTongue:'Tem', languages:['English','French'], status:'Célibataire', tKey:'t4', tLabel:'12–24 mois', relocate:'Oui / Yes', children:'Non', flexible:'Oui, mais préfère son calendrier', lang:'fr' },
+  { id:'MMID10002026100527', age:24, height:'169 cm', city:'Québec City, Canada', nationality:'Tunisienne', background:'Nord-Africain(e)', motherTongue:'Arabe', languages:['Arabic','English','French'], status:'Célibataire', tKey:'t2', tLabel:'3–6 mois', relocate:'Oui / Yes', children:'Non', flexible:'Oui', lang:'fr' },
+  { id:'MMID10002026100574', age:24, height:'162 cm', city:'Montréal, Canada', nationality:'Algérienne', background:'North African', motherTongue:'Arabic', languages:['Arabic','English','French','Spanish','Urdu'], status:'Never Married', tKey:'t2', tLabel:'3–6 mois', relocate:'Yes / Oui', children:'No', flexible:'Yes, but prefers her timeline', lang:'en' },
+  { id:'MMID10002026100523', age:26, height:'170 cm', city:'Montréal, Canada', nationality:'Algérienne', background:'Moyen-Oriental(e)', motherTongue:'Français', languages:['Arabic','English','French'], status:'Célibataire (ex-fiancée)', tKey:'t2', tLabel:'3–6 mois', relocate:'Oui / Yes', children:'Non', flexible:'Oui', lang:'fr' },
+  { id:'MMID10002026100512', age:27, height:"5'3\"", city:'Karachi, Pakistan', nationality:'Pakistani', background:'South Asian', motherTongue:'Urdu', languages:['English','Urdu'], status:'Never Married', tKey:'t2', tLabel:'3–6 mois', relocate:'Yes / Oui', children:'No', flexible:'Yes', lang:'en' },
+  { id:'MMID10002026100515', age:28, height:"5'5\"", city:'Montréal, QC, Canada', nationality:'Bangladeshi', background:'South Asian', motherTongue:'Bangla', languages:['English','Bangla'], status:'Never Married', tKey:'t2', tLabel:'3–6 mois', relocate:'Yes / Oui', children:'No', flexible:'Yes', lang:'en' },
+  { id:'MMID10002026100528', age:28, height:'160 cm', city:'Canada', nationality:'Tunisienne', background:'Nord-Africain(e)', motherTongue:'Arabe', languages:['French'], status:'Célibataire', tKey:'t3', tLabel:'6–12 mois', relocate:'Selon / Depends', children:'Non', flexible:'Oui, mais préfère son calendrier', lang:'fr' },
+  { id:'MMID10002026100529', age:28, height:'178 cm', city:'Moncton, Canada', nationality:'Malienne · Canadienne', background:'Black / African Descent', motherTongue:'Bambara / Français', languages:['English','French'], status:'Never Married', tKey:'t3', tLabel:'6–12 mois', relocate:'Yes / Oui', children:'No', flexible:'Yes, but prefers her timeline', lang:'en' },
+  { id:'MMID10002026100575', age:28, height:"5'4\"", city:'Montréal, Canada', nationality:'Canadian', background:'South Asian', motherTongue:'Urdu', languages:['Arabic','English','Urdu'], status:'Never Married', tKey:'t2', tLabel:'3–6 mois', relocate:'Yes / Oui', children:'No', flexible:'Yes, but prefers her timeline', lang:'en' },
+  { id:'MMID10002026100530', age:29, height:'168 cm', city:'Montréal, Canada', nationality:'Algérienne', background:'North African', motherTongue:'Arabic', languages:['Arabic','English','French'], status:'Never Married (Previously Engaged)', tKey:'t3', tLabel:'6–12 mois', relocate:'Selon / Depends', children:'No', flexible:'No', lang:'en' },
+  { id:'MMID10002026100544', age:29, height:"5'4\"", city:'Montréal, QC, Canada', nationality:'Canadian', background:'South Asian', motherTongue:'Urdu', languages:['English','French'], status:'Never Married', tKey:'t3', tLabel:'6–12 mois', relocate:'No / Non', children:'No', flexible:'Yes', lang:'en' },
+  { id:'MMID10002026100542', age:30, height:'168 cm', city:'Montréal, Canada', nationality:'Tunisienne', background:'Nord-Africain(e)', motherTongue:'—', languages:['Arabic','English','French'], status:'Célibataire', tKey:'t3', tLabel:'6–12 mois', relocate:'Oui / Yes', children:'Non', flexible:'Oui', lang:'fr' },
+  { id:'MMID10002026100505', age:31, height:'165 cm', city:'Toronto, Canada', nationality:'Algérienne', background:'North African', motherTongue:'Arabic', languages:['Arabic','English'], status:'Never Married', tKey:'t3', tLabel:'6–12 mois', relocate:'Selon / Depends', children:'No', flexible:'Yes', lang:'en' },
+  { id:'MMID10002026100571', age:31, height:'160 cm', city:'Montréal, Canada', nationality:'Marocaine · Canadienne', background:'Nord-Africain(e)', motherTongue:'Arabe', languages:['Arabic','French'], status:'Célibataire', tKey:'t2', tLabel:'3–6 mois', relocate:'Selon / Depends', children:'Non', flexible:'Oui, mais préfère son calendrier', lang:'fr' },
+  { id:'MMID10002026100579', age:31, height:'165 cm', city:'Montréal, Canada', nationality:'Marocaine', background:'Nord-Africain(e)', motherTongue:'Arabe', languages:['English','French'], status:'Célibataire', tKey:'t3', tLabel:'6–12 mois', relocate:'Oui / Yes', children:'Non', flexible:'Oui', lang:'fr' },
+  { id:'MMID10002026100506', age:33, height:'167 cm', city:'Canada', nationality:'Egyptian', background:'Middle Eastern', motherTongue:'Arabic', languages:['Arabic','English'], status:'Never Married', tKey:'t2', tLabel:'3–6 mois', relocate:'Selon / Depends', children:'No', flexible:'Yes', lang:'en' },
+  { id:'MMID10002026100514', age:33, height:'165 cm', city:'Laval, Canada', nationality:'Marocaine', background:'North African', motherTongue:'Arabic', languages:['Arabic','English','French'], status:'Never Married', tKey:'t2', tLabel:'3–6 mois', relocate:'Selon / Depends', children:'No', flexible:'Yes, but prefers her timeline', lang:'en' },
+  { id:'MMID10002026100516', age:34, height:"5'3\"", city:'Montréal, Canada', nationality:'Canadian', background:'South Asian', motherTongue:'Punjabi / Urdu', languages:['English','Hindi','Urdu','Punjabi'], status:'Never Married', tKey:'t3', tLabel:'6–12 mois', relocate:'Selon / Depends', children:'No', flexible:'Yes, but prefers her timeline', lang:'en' },
+  { id:'MMID10002026100541', age:36, height:'171 cm', city:'Montréal, Canada', nationality:'Française · Canadienne', background:'Noir(e) / Africaine', motherTongue:'Français', languages:['English','French'], status:'Célibataire', tKey:'t3', tLabel:'6–12 mois', relocate:'Selon / Depends', children:'Non', flexible:'Oui, mais préfère son calendrier', lang:'fr' },
+  { id:'MMID10002026100550', age:37, height:"5'5\"", city:'Ottawa, Canada', nationality:'Ethiopian · Somali', background:'Black / African Descent', motherTongue:'Somali', languages:['English','French','Somali'], status:'Divorced', tKey:'t3', tLabel:'6–12 mois', relocate:'Selon / Depends', children:'No', flexible:'Yes', lang:'en' },
+  { id:'MMID10002026100545', age:38, height:"5'9\"", city:'Vancouver, Canada', nationality:'Sénégalaise', background:'Black / African Descent', motherTongue:'Wolof', languages:['English','French','Wolof'], status:'Never Married', tKey:'t2', tLabel:'3–6 mois', relocate:'Selon / Depends', children:'No', flexible:'Yes', lang:'en' },
+  { id:'MMID10002026100543', age:41, height:'160 cm', city:'Montréal, Canada', nationality:'Marocaine', background:'Noir(e) / Africaine', motherTongue:'Arabe', languages:['French'], status:'Célibataire (ex-fiancée)', tKey:'t2', tLabel:'3–6 mois', relocate:'Selon / Depends', children:'Non', flexible:'Oui', lang:'fr' },
+  { id:'MMID10002026100522', age:51, height:'158 cm', city:'Terrebonne, Canada', nationality:'Marocaine', background:'Nord-Africain(e)', motherTongue:'Arabe', languages:['French'], status:'Divorcée (finalisé)', tKey:'t3', tLabel:'6–12 mois', relocate:'Selon / Depends', children:'Oui — 2 garçons (22 & 17 ans)', flexible:'Oui, mais préfère son calendrier', lang:'fr' }
+];
+
+function badgeCls(k){ return k==='t1'||k==='t2'?'badge-teal':k==='t3'?'badge-amber':'badge-purple'; }
+
+function buildCard(p, i) {
+  const av = avColors[i % avColors.length];
+  const isFr = p.lang === 'fr';
+  const hasChildren = p.children !== 'No' && p.children !== 'Non';
+  const num = String(i+1).padStart(2,'0');
+  const search = [p.city,p.nationality,p.background,p.motherTongue,...p.languages,p.status].join(' ').toLowerCase();
+
+  return `<div class="card" data-search="${search}" data-langs="${p.languages.join(',').toLowerCase()}" data-tkey="${p.tKey}">
+  <div class="card-header">
+    <div class="avatar" style="background:${av.bg}">${av.icon}</div>
+    <div>
+      <div class="profile-label">${isFr?'Profil Sœur':'Sister Profile'} #${num}</div>
+      <div class="profile-id">${p.id}</div>
+    </div>
+  </div>
+  <hr class="divider"/>
+  <div class="info-grid">
+    <div class="info-item"><div class="info-label">🎂 ${isFr?'Âge':'Age'}</div><div class="info-value">${p.age} ${isFr?'ans':'yrs'}</div></div>
+    <div class="info-item"><div class="info-label">📏 ${isFr?'Taille':'Height'}</div><div class="info-value">${p.height}</div></div>
+    <div class="info-item"><div class="info-label">📍 ${isFr?'Ville':'City'}</div><div class="info-value">${p.city}</div></div>
+    <div class="info-item"><div class="info-label">🌍 ${isFr?'Nationalité':'Nationality'}</div><div class="info-value">${p.nationality}</div></div>
+    <div class="info-item"><div class="info-label">🌱 ${isFr?'Origine':'Background'}</div><div class="info-value">${p.background}</div></div>
+    <div class="info-item"><div class="info-label">🗣 ${isFr?'Langue mat.':'Mother tongue'}</div><div class="info-value">${p.motherTongue}</div></div>
+    <div class="info-item" style="grid-column:1/-1"><div class="info-label">💬 ${isFr?'Langues parlées':'Spoken languages'}</div><div class="info-value">${p.languages.join(' · ')}</div></div>
+    <div class="info-item"><div class="info-label">💍 ${isFr?'Statut':'Status'}</div><div class="info-value">${p.status}</div></div>
+    <div class="info-item"><div class="info-label">👶 ${isFr?'Enfants':'Children'}</div><div class="info-value">${hasChildren?p.children:(isFr?'Non':'No')}</div></div>
+  </div>
+  <hr class="divider"/>
+  <div class="card-footer">
+    <span class="badge ${badgeCls(p.tKey)}">⏱ ${p.tLabel}</span>
+    <span class="tag">✈️ ${p.relocate}</span>
+  </div>
+  <div class="flex-row">
+    <div class="dot"></div>
+    <span>${isFr?'Flexible si plus tôt ?':'Open if sooner?'} ${p.flexible}</span>
+  </div>
+</div>`;
+}
+
+document.getElementById('grid').innerHTML = profiles.map((p,i)=>buildCard(p,i)).join('');
+
+function filter() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const lang = document.getElementById('langFilter').value.toLowerCase();
+  const time = document.getElementById('timeFilter').value;
+  let count = 0;
+  document.querySelectorAll('.card').forEach(card => {
+    const show = (!q || card.dataset.search.includes(q) || card.innerText.toLowerCase().includes(q))
+              && (!lang || card.dataset.langs.includes(lang))
+              && (!time || card.dataset.tkey === time);
+    card.style.display = show ? '' : 'none';
+    if(show) count++;
+  });
+  document.getElementById('countLabel').textContent = `Affichage de ${count} profil${count!==1?'s':''}`;
+  document.getElementById('noResult').style.display = count===0?'block':'none';
+}
+</script>
+</body>
+</html>
